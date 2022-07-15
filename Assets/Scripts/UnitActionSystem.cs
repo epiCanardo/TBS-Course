@@ -1,22 +1,34 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class UnitActionSystem : MonoBehaviour
 {
+    public static UnitActionSystem Instance { get; private set; }
+    
+    public event EventHandler OnSelectedUnitChanged; // type standard c#
+
     [SerializeField]
     private Unit selectedUnit;
+    public Unit SelectedUnit => selectedUnit;
 
     [SerializeField]
     private LayerMask unitLayerMask;
 
+    private void Awake()
+    {        
+        Instance = this;
+    }
+
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            // selection de l'unité
-            if (TryHandleUnitSelection()) return;
+        // sélection du perso : cli gauche
+        if (Input.GetMouseButtonDown(0) && TryHandleUnitSelection()) return;
 
+        // déplacement : clic droit
+        if (Input.GetMouseButtonDown(1))
+        {
             // récupération de la position
             var mousePos = MouseWorld.GetPosition();
             selectedUnit.SetTargetPosition(new Vector3(mousePos.x, 0, mousePos.z));
@@ -30,11 +42,24 @@ public class UnitActionSystem : MonoBehaviour
         {
             if (hit.transform.TryGetComponent(out Unit unit))
             {
-                selectedUnit = unit;
+                SetSelectedUnit(unit);
                 return true;
             }
         }
 
         return false;
     }
+
+    private void SetSelectedUnit(Unit unit)
+    {
+        selectedUnit = unit;
+
+        OnSelectedUnitChanged?.Invoke(this, EventArgs.Empty);
+
+        // implémentation similaire
+        //if (OnSelectedUnitChanged != null)
+        //{
+        //    OnSelectedUnitChanged(this, EventArgs.Empty);
+        //}
+    }    
 }
