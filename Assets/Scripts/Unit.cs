@@ -5,6 +5,8 @@ using UnityEngine;
 public class Unit : MonoBehaviour
 {
     private Vector3 targetPosition;
+    private GridPosition gridPosition;
+
     private float moveSpeed = 4f;
     private float rotateSpeed = 10f;
     private float stoppingDistance = .15f;
@@ -20,6 +22,12 @@ public class Unit : MonoBehaviour
     private void Awake()
     {
         SetTargetPosition(transform.position);
+    }
+
+    private void Start()
+    {
+        gridPosition = LevelGrid.Instance.GetGridPosition(transform.position);
+        LevelGrid.Instance.AddUnitAtGridPosition(gridPosition, this);
     }
 
     private void Update()
@@ -38,5 +46,12 @@ public class Unit : MonoBehaviour
         }       
         else
             animator.SetBool("IsWalking", false);
+
+        GridPosition newGridPos = LevelGrid.Instance.GetGridPosition(transform.position);
+        if (newGridPos != gridPosition)
+        {
+            LevelGrid.Instance.UnitMovedGridPosition(this, gridPosition, newGridPos);
+            gridPosition = newGridPos;
+        }
     }
 }

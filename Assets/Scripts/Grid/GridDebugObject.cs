@@ -13,6 +13,11 @@ public class GridDebugObject : MonoBehaviour
     public void SetGridObject(GridObject gridObject)
     {
         this.gridObject = gridObject;
-        debugText.text = gridObject.GridPositon.ToString();
+    }
+
+    private void Update()
+    {
+        if (gridObject != null)
+            debugText.text = gridObject.ToString();
     }
 }
