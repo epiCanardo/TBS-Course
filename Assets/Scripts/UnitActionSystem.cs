@@ -6,8 +6,9 @@ using UnityEngine;
 public class UnitActionSystem : MonoBehaviour
 {
     public static UnitActionSystem Instance { get; private set; }
-    
+
     public event EventHandler OnSelectedUnitChanged; // type standard c#
+    //public event EventHandler OnUnitTargetPosChanged;
 
     [SerializeField]
     private Unit selectedUnit;
@@ -17,7 +18,7 @@ public class UnitActionSystem : MonoBehaviour
     private LayerMask unitLayerMask;
 
     private void Awake()
-    {        
+    {
         Instance = this;
     }
 
@@ -31,7 +32,13 @@ public class UnitActionSystem : MonoBehaviour
         {
             // récupération de la position
             var mousePos = MouseWorld.GetPosition();
-            selectedUnit.SetTargetPosition(new Vector3(mousePos.x, 0, mousePos.z));
+            GridPosition mouseGridPos = LevelGrid.Instance.GetGridPosition(mousePos);
+
+            if (selectedUnit.MoveAction.IsValidActionGridPosition(mouseGridPos))
+            {
+                selectedUnit.MoveAction.SetTargetPosition(mouseGridPos);
+                //OnUnitTargetPosChanged?.Invoke(this, EventArgs.Empty);
+            }
         }
     }
 
@@ -53,13 +60,6 @@ public class UnitActionSystem : MonoBehaviour
     private void SetSelectedUnit(Unit unit)
     {
         selectedUnit = unit;
-
         OnSelectedUnitChanged?.Invoke(this, EventArgs.Empty);
-
-        // implémentation similaire
-        //if (OnSelectedUnitChanged != null)
-        //{
-        //    OnSelectedUnitChanged(this, EventArgs.Empty);
-        //}
-    }    
+    }
 }

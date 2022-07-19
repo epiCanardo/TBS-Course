@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -30,6 +31,9 @@ public class GridObject
     {
         gridUnitList.Remove(unit);
     }
+
+    public bool HasAnyUnit() => gridUnitList.Any();
+
     public override string ToString()
     {
         StringBuilder sb = new StringBuilder();

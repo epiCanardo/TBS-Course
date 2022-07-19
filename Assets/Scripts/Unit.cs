@@ -1,27 +1,20 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Unit : MonoBehaviour
 {
-    private Vector3 targetPosition;
     private GridPosition gridPosition;
+    public GridPosition GridPos => gridPosition;
 
-    private float moveSpeed = 4f;
-    private float rotateSpeed = 10f;
-    private float stoppingDistance = .15f;
-
-    [SerializeField]
-    private Animator animator;
-
-    public void SetTargetPosition(Vector3 inPutPosition)
-    {
-        targetPosition = inPutPosition;
-    }
+    private MoveAction moveAction;
+    public MoveAction MoveAction => moveAction;
 
     private void Awake()
     {
-        SetTargetPosition(transform.position);
+        moveAction = GetComponent<MoveAction>();
+        //UnitActionSystem.Instance.OnUnitTargetPosChanged += UnitActionSystem_OnUnitTargetPosChanged;
     }
 
     private void Start()
@@ -30,23 +23,11 @@ public class Unit : MonoBehaviour
         LevelGrid.Instance.AddUnitAtGridPosition(gridPosition, this);
     }
 
+    /// <summary>
+    /// TODO : à améliorer => ne devrait être appelé qu'à chaque changement de position (évènement)
+    /// </summary>
     private void Update()
-    { 
-        if (Vector3.Distance(targetPosition, transform.position) > stoppingDistance)
-        {
-            // calcul du mouvement
-            Vector3 moveDirection = (targetPosition - transform.position).normalized;            
-            transform.position += moveDirection * moveSpeed * Time.deltaTime;
-
-            // rotation du perso
-            transform.forward = Vector3.Slerp(transform.forward, moveDirection, Time.deltaTime * rotateSpeed);
-
-            // animation de marche
-            animator.SetBool("IsWalking", true);
-        }       
-        else
-            animator.SetBool("IsWalking", false);
-
+    {
         GridPosition newGridPos = LevelGrid.Instance.GetGridPosition(transform.position);
         if (newGridPos != gridPosition)
         {
@@ -54,4 +35,10 @@ public class Unit : MonoBehaviour
             gridPosition = newGridPos;
         }
     }
+    //private void UnitActionSystem_OnUnitTargetPosChanged(object sender, EventArgs empty)
+    //{
+    //    GridPosition newGridPos = LevelGrid.Instance.GetGridPosition(transform.position);
+    //    LevelGrid.Instance.UnitMovedGridPosition(this, gridPosition, newGridPos);
+    //    gridPosition = newGridPos;
+    //}
 }
